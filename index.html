@@ -330,25 +330,29 @@
             </Card>
 
             <Card title="Top 10 clientes por receita (YTD)" className="col-span-12 xl:col-span-5">
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-base">
-                  <thead>
-                    <tr className="text-left text-txtSecondary">
-                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Cliente</th>
-                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Risco</th>
-                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 text-right font-semibold">Receita</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {TOP_CUSTOMERS.map((c) => (
-                      <tr key={c.nome} className="hover:bg-bgMain/25">
-                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3">{c.nome}</td>
-                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-txtSecondary">{c.risco}</td>
-                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-right tabular-nums">{c.receita}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mb-3 grid grid-cols-[1fr_auto_auto] px-3 text-base text-txtSecondary">
+                <span>Cliente</span>
+                <span>Risco</span>
+                <span className="text-right">Receita</span>
+              </div>
+              <div className="space-y-2">
+                {TOP_CUSTOMERS.map((c, idx) => (
+                  <Tooltip key={c.nome} content={`${c.nome} • LTV ${c.ltv}`}>
+                    <button className="group w-full rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain/30 px-3 py-3 text-left transition-colors hover:border hover:border-strHover focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40">
+                      <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3">
+                        <div className="flex items-center gap-3">
+                          <span className="inline-flex h-6 w-6 items-center justify-center rounded-[8px] border border-[0.5px] border-strDefault text-base text-txtSecondary">{idx + 1}</span>
+                          <span className="text-base font-semibold">{c.nome}</span>
+                        </div>
+                        <span className="text-base text-txtSecondary">{c.risco}</span>
+                        <span className="text-right text-base font-semibold tabular-nums">{c.receita}</span>
+                      </div>
+                      <div className="mt-2 h-1.5 rounded-[8px] bg-strDefault/45">
+                        <div className="h-1.5 rounded-[8px] bg-chart2 transition-all group-hover:bg-chart1" style={{ width: `${100 - idx * 7}%` }}></div>
+                      </div>
+                    </button>
+                  </Tooltip>
+                ))}
               </div>
             </Card>
 
@@ -436,28 +440,23 @@
               </div>
             </Card>
 
-            <Card title="Top contas por LTV" className="col-span-12">
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-base">
-                  <thead>
-                    <tr className="text-left text-txtSecondary">
-                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Conta</th>
-                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">LTV</th>
-                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Receita YTD</th>
-                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Risco</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {TOP_CUSTOMERS.slice(0, 6).map((c) => (
-                      <tr key={c.nome} className="hover:bg-bgMain/25">
-                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3">{c.nome}</td>
-                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 tabular-nums">{c.ltv}</td>
-                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 tabular-nums">{c.receita}</td>
-                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-txtSecondary">{c.risco}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <Card title="Top contas por LTV" className="col-span-12" rightSlot={<Badge tone="success">Saúde média: 8,6/10</Badge>}>
+              <div className="grid gap-2">
+                {TOP_CUSTOMERS.slice(0, 6).map((c, idx) => (
+                  <Tooltip key={c.nome} content={`Receita YTD ${c.receita} • Risco ${c.risco}`}>
+                    <button className="group w-full rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain/30 px-3 py-3 text-left transition-colors hover:border hover:border-strHover focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40">
+                      <div className="grid grid-cols-[1.2fr_auto_auto_auto] items-center gap-3">
+                        <div>
+                          <p className="text-base font-semibold">{c.nome}</p>
+                          <p className="text-base text-txtSecondary">Health score: {(9.4 - idx * 0.2).toFixed(1)}</p>
+                        </div>
+                        <p className="text-base tabular-nums">{c.ltv}</p>
+                        <p className="text-base tabular-nums">{c.receita}</p>
+                        <Badge tone={c.risco === 'Alto' ? 'danger' : c.risco === 'Médio' ? 'warning' : 'success'}>{c.risco}</Badge>
+                      </div>
+                    </button>
+                  </Tooltip>
+                ))}
               </div>
             </Card>
           </section>
