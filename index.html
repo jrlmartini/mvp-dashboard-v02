@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conatus | Dashboard Executivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { outfit: ['Outfit', 'sans-serif'] },
+            colors: {
+              bgMain: '#03131e',
+              bgCard: '#071724',
+              bgModal: '#214058',
+              bgButton: '#275fc1',
+              bgDestructive: '#e45757',
+              strDefault: '#214059',
+              strHover: '#275fc1',
+              strDisabled: '#8f9da7',
+              strDestructive: '#d32f2f',
+              txtMain: '#f2f2f2',
+              txtSecondary: '#c1cdd9',
+              txtMuted: '#8f9da7',
+              txtModal: '#03131e',
+              chart1: '#275fc1',
+              chart2: '#19c2b8',
+              chart3: '#2aa9e0',
+              chart4: '#22A87e',
+              chart5: '#7ad74a',
+              chart6: '#f58b3a',
+              chartOther: '#B6c2D1',
+              stSuccess: '#34d399',
+              stWarning: '#fbbf24',
+              stDanger: '#fb7185'
+            }
+          }
+        }
+      };
+    </script>
+  </head>
+  <body class="bg-bgMain text-txtMain font-outfit antialiased">
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const NAV_ITEMS = [
+        { key: 'Resumo executivo', icon: 'home' },
+        { key: 'Financeiro', icon: 'finance' },
+        { key: 'Clientes', icon: 'users' },
+        { key: 'Operações', icon: 'ops' },
+        { key: 'Riscos e alertas', icon: 'alert' }
+      ];
+
+      const CUSTOMERS = [
+        { nome: 'Vale', receita: 'R$ 18,4M', risco: 'Baixo' },
+        { nome: 'Braskem', receita: 'R$ 14,1M', risco: 'Médio' },
+        { nome: 'Petrobras', receita: 'R$ 12,9M', risco: 'Baixo' },
+        { nome: 'ArcelorMittal', receita: 'R$ 10,8M', risco: 'Baixo' },
+        { nome: 'Ambev', receita: 'R$ 9,9M', risco: 'Médio' },
+        { nome: 'Klabin', receita: 'R$ 8,6M', risco: 'Baixo' },
+        { nome: 'Suzano', receita: 'R$ 7,8M', risco: 'Baixo' },
+        { nome: 'Gerdau', receita: 'R$ 7,1M', risco: 'Médio' },
+        { nome: 'Raízen', receita: 'R$ 6,5M', risco: 'Baixo' },
+        { nome: 'Natura', receita: 'R$ 5,7M', risco: 'Alto' }
+      ];
+
+      const SEGMENTS = [
+        { nome: 'Mineração', valor: 100, cor: 'bg-chart1' },
+        { nome: 'Químico', valor: 82, cor: 'bg-chart2' },
+        { nome: 'Energia', valor: 74, cor: 'bg-chart3' },
+        { nome: 'Saneamento', valor: 63, cor: 'bg-chart4' },
+        { nome: 'Alimentos', valor: 46, cor: 'bg-chart5' }
+      ];
+
+      const EBITDA_YTD = [
+        { mes: 'Jan', valor: 51.2 },
+        { mes: 'Fev', valor: 109.0 },
+        { mes: 'Mar', valor: 174.6 },
+        { mes: 'Abr', valor: 236.2 },
+        { mes: 'Mai', valor: 301.4 },
+        { mes: 'Jun', valor: 368.9 }
+      ];
+
+      function cn(...classes) {
+        return classes.filter(Boolean).join(' ');
+      }
+
+      function Icon({ name, className = 'h-5 w-5' }) {
+        const common = { className: cn('stroke-current fill-none', className), strokeWidth: '1.8', viewBox: '0 0 24 24' };
+        if (name === 'home') return <svg {...common}><path d="M3 10.5 12 3l9 7.5" /><path d="M5.5 9.5V20h13V9.5" /></svg>;
+        if (name === 'finance') return <svg {...common}><path d="M4 19h16" /><path d="M7 16V9" /><path d="M12 16V6" /><path d="M17 16v-4" /></svg>;
+        if (name === 'users') return <svg {...common}><path d="M9 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path d="M16 11a2.5 2.5 0 1 0 0-5" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0" /><path d="M14.5 20a4 4 0 0 1 6 0" /></svg>;
+        if (name === 'ops') return <svg {...common}><path d="m4 14 4 4L20 6" /></svg>;
+        if (name === 'alert') return <svg {...common}><path d="m12 4 8 14H4L12 4Z" /><path d="M12 10v4" /><path d="M12 17h.01" /></svg>;
+        return <svg {...common}><circle cx="12" cy="12" r="8" /></svg>;
+      }
+
+      function Button({ variant = 'outline', className = '', children, ...props }) {
+        const variants = {
+          primary: 'bg-bgButton text-txtMain border border-bgButton hover:border-strHover',
+          outline: 'bg-bgCard text-txtMain border border-[0.5px] border-strDefault hover:border hover:border-strHover',
+          ghost: 'bg-bgCard text-txtSecondary border border-[0.5px] border-strDisabled hover:border hover:border-strDefault hover:text-txtMain',
+          destructive: 'bg-bgDestructive text-txtModal border border-bgDestructive hover:border hover:border-strDestructive'
+        };
+
+        return (
+          <button
+            className={cn(
+              'h-10 rounded-[8px] px-4 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40',
+              variants[variant],
+              className
+            )}
+            {...props}
+          >
+            {children}
+          </button>
+        );
+      }
+
+      function Badge({ tone = 'success', children }) {
+        const tones = {
+          success: 'bg-stSuccess text-txtModal',
+          warning: 'bg-stWarning text-txtModal',
+          danger: 'bg-stDanger text-txtModal'
+        };
+        return <span className={cn('inline-flex items-center rounded-[8px] px-2 py-1 text-base font-semibold', tones[tone])}>{children}</span>;
+      }
+
+      function Card({ title, className = '', children, interactive = true }) {
+        return (
+          <section
+            className={cn(
+              'rounded-[12px] border border-[0.5px] border-strDefault bg-bgCard p-6',
+              interactive && 'transition-colors hover:border hover:border-strHover focus-within:border focus-within:border-strHover',
+              className
+            )}
+          >
+            <h2 className="mb-4 text-[20px] font-semibold">{title}</h2>
+            {children}
+          </section>
+        );
+      }
+
+      function Kpi({ label, value, foot, footTone = 'success' }) {
+        return (
+          <div className="space-y-2">
+            <p className="text-base text-txtSecondary">{label}</p>
+            <p className="text-[30px] font-bold tabular-nums leading-none">{value}</p>
+            {foot ? <Badge tone={footTone}>{foot}</Badge> : null}
+          </div>
+        );
+      }
+
+      function EbitdaLineChart({ data }) {
+        const width = 720;
+        const height = 220;
+        const padding = { top: 24, right: 24, bottom: 30, left: 46 };
+        const innerW = width - padding.left - padding.right;
+        const innerH = height - padding.top - padding.bottom;
+        const minVal = 0;
+        const maxVal = Math.max(...data.map((d) => d.valor)) * 1.1;
+
+        const x = (index) => padding.left + (index / (data.length - 1)) * innerW;
+        const y = (value) => padding.top + innerH - ((value - minVal) / (maxVal - minVal)) * innerH;
+
+        const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d.valor)}`).join(' ');
+        const areaPath = `${linePath} L ${x(data.length - 1)} ${height - padding.bottom} L ${x(0)} ${height - padding.bottom} Z`;
+        const yTicks = [0.25, 0.5, 0.75, 1].map((v) => maxVal * v);
+
+        return (
+          <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
+            {yTicks.map((tick) => (
+              <g key={tick}>
+                <line x1={padding.left} x2={width - padding.right} y1={y(tick)} y2={y(tick)} stroke="#214059" strokeWidth="0.5" />
+                <text x={padding.left - 8} y={y(tick) + 4} fill="#c1cdd9" textAnchor="end" fontSize="12">{`R$ ${tick.toFixed(0)}M`}</text>
+              </g>
+            ))}
+
+            <path d={areaPath} fill="#275fc1" fillOpacity="0.18" />
+            <path d={linePath} fill="none" stroke="#275fc1" strokeWidth="2" />
+
+            {data.map((d, i) => (
+              <g key={d.mes}>
+                <circle cx={x(i)} cy={y(d.valor)} r="4" fill="#19c2b8" />
+                <text x={x(i)} y={height - 10} fill="#c1cdd9" textAnchor="middle" fontSize="12">{d.mes}</text>
+              </g>
+            ))}
+          </svg>
+        );
+      }
+
+      function Sidebar({ selected, onSelect, collapsed, onToggle }) {
+        return (
+          <aside className={cn('border-r border-[0.5px] border-strDefault bg-bgCard p-3 transition-all lg:p-4', collapsed ? 'w-[86px]' : 'w-[280px]')}>
+            <div className="mb-4 flex items-center justify-between rounded-[12px] border border-[0.5px] border-strDefault bg-bgMain p-3">
+              {!collapsed && (
+                <div>
+                  <p className="text-[20px] font-semibold">Conatus Hub</p>
+                  <p className="text-base text-txtSecondary">Painel estratégico</p>
+                </div>
+              )}
+              <button
+                onClick={onToggle}
+                className="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[0.5px] border-strDefault text-txtSecondary hover:border hover:border-strHover hover:text-txtMain"
+              >
+                <svg className={cn('h-5 w-5 transition-transform', collapsed ? 'rotate-180' : '')} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="m15 6-6 6 6 6" />
+                </svg>
+              </button>
+            </div>
+
+            <nav className="grid gap-2">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => onSelect(item.key)}
+                  className={cn(
+                    'min-h-10 rounded-[8px] border border-[0.5px] px-3 py-2 text-left text-base transition-colors focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40 flex items-center gap-2',
+                    selected === item.key
+                      ? 'border border-strHover text-txtMain bg-bgMain'
+                      : 'border-strDefault text-txtSecondary bg-bgCard hover:border hover:border-strHover hover:text-txtMain',
+                    collapsed && 'justify-center px-2'
+                  )}
+                  title={collapsed ? item.key : undefined}
+                >
+                  <Icon name={item.icon} className="h-5 w-5" />
+                  {!collapsed && <span>{item.key}</span>}
+                </button>
+              ))}
+            </nav>
+          </aside>
+        );
+      }
+
+      function App() {
+        const [activeNav, setActiveNav] = React.useState(NAV_ITEMS[0].key);
+        const [periodo, setPeriodo] = React.useState('MTD');
+        const [compact, setCompact] = React.useState(false);
+        const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+
+        return (
+          <div className="min-h-screen lg:flex">
+            <Sidebar selected={activeNav} onSelect={setActiveNav} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
+
+            <main className="flex-1 p-4 lg:p-6">
+              <header className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                  <h1 className="text-[24px] font-semibold">Dashboard Executivo — Conatus Environmental Technologies</h1>
+                  <p className="mt-2 text-base text-txtSecondary">Fechamento parcial de março/2026 • seção ativa: {activeNav}</p>
+                </div>
+                <div className="flex flex-wrap justify-start gap-2 xl:justify-end">
+                  <Button variant="outline" onClick={() => setPeriodo('MTD')}>Visão MTD</Button>
+                  <Button variant="outline" onClick={() => setPeriodo('YTD')}>Visão YTD</Button>
+                  <Button variant="ghost" onClick={() => setCompact((v) => !v)}>{compact ? 'Desativar modo compacto' : 'Ativar modo compacto'}</Button>
+                  <Button variant="primary">Atualizar dados</Button>
+                  <Button variant="destructive">Sinalizar risco</Button>
+                </div>
+              </header>
+
+              <section className={cn('grid grid-cols-12 gap-6', compact && 'gap-4')}>
+                <Card title="Receitas e run-rate" className="col-span-12 xl:col-span-4">
+                  <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <Kpi label={`Receita ${periodo}`} value={periodo === 'MTD' ? 'R$ 82,4M' : 'R$ 711,8M'} foot="+4,8% vs meta até hoje" />
+                    <Kpi label="Run-rate anual" value="R$ 720,0M" foot="-1,2% vs run-rate anual" footTone="warning" />
+                  </div>
+                  <p className="text-base text-txtMuted">Receita média mensal: R$ 237,3M • Ticket médio: R$ 1,48M</p>
+                </Card>
+
+                <Card title="Posição de caixa" className="col-span-12 xl:col-span-4">
+                  <p className="text-base text-txtSecondary">Saldo total em BRL</p>
+                  <p className="mt-2 text-[30px] font-bold tabular-nums leading-none">R$ 294,7M</p>
+                  <div className="mt-4 grid grid-cols-2 gap-4">
+                    <div><p className="text-base text-txtSecondary">Disponível</p><p className="text-2xl font-bold tabular-nums">R$ 211,9M</p></div>
+                    <div><p className="text-base text-txtSecondary">Aplicações D+1</p><p className="text-2xl font-bold tabular-nums">R$ 82,8M</p></div>
+                  </div>
+                  <div className="mt-4"><Badge tone="success">Cobertura de 3,2 meses de OPEX</Badge></div>
+                </Card>
+
+                <Card title="Geração de caixa operacional" className="col-span-12 xl:col-span-4">
+                  <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <Kpi label="MTD" value="R$ 31,2M" foot="+8,1% vs orçamento" />
+                    <Kpi label="YTD" value="R$ 201,4M" foot="Conversão caixa: 73%" />
+                  </div>
+                  <p className="text-base text-txtMuted">Capex realizado YTD: R$ 68,9M • Capex/Receita: 9,7%</p>
+                </Card>
+
+                <Card title="Top 10 clientes por receita (YTD)" className="col-span-12 xl:col-span-5">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse text-base">
+                      <thead>
+                        <tr className="text-left text-txtSecondary">
+                          <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Cliente</th>
+                          <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Risco</th>
+                          <th className="border-b border-[0.5px] border-strDefault px-2 py-3 text-right font-semibold">Receita</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {CUSTOMERS.map((c) => (
+                          <tr key={c.nome} className="hover:outline-none">
+                            <td className="border-b border-[0.5px] border-strDefault px-2 py-3">{c.nome}</td>
+                            <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-txtSecondary">{c.risco}</td>
+                            <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-right tabular-nums">{c.receita}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+
+                <Card title="EBITDA acumulado YTD — série temporal" className="col-span-12 xl:col-span-7">
+                  <div className="mb-3 flex items-end justify-between">
+                    <div>
+                      <p className="text-[30px] font-bold tabular-nums leading-none">R$ 368,9M</p>
+                      <p className="mt-2 text-base text-txtSecondary">Evolução mensal acumulada do EBITDA no ano</p>
+                    </div>
+                    <Badge tone="success">+12,4% vs orçamento YTD</Badge>
+                  </div>
+                  <div className="rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain p-3">
+                    <EbitdaLineChart data={EBITDA_YTD} />
+                  </div>
+                </Card>
+
+                <Card title="Análise RFM (Recência × Frequência × Monetário)" className="col-span-12 xl:col-span-6">
+                  <div className="space-y-2 text-base">
+                    {[
+                      ['Campeões', '62', 'bg-chart5/35'],
+                      ['Leais', '48', 'bg-chart4/35'],
+                      ['Promissores', '27', 'bg-chart6/35'],
+                      ['Atenção', '19', 'bg-bgDestructive/35']
+                    ].map(([label, qtd, bg]) => (
+                      <button key={label} className={cn('w-full rounded-[8px] border border-[0.5px] border-strDefault px-3 py-2 text-left hover:border hover:border-strHover focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40', bg)}>
+                        <span className="font-semibold">{label}</span> <span className="text-txtSecondary">({qtd} contas)</span>
+                      </button>
+                    ))}
+                  </div>
+                </Card>
+
+                <Card title="Mix de receita por segmento" className="col-span-12 xl:col-span-6">
+                  <div className="space-y-3">
+                    {SEGMENTS.map((segmento) => (
+                      <div key={segmento.nome} className="grid grid-cols-[120px_1fr_90px] items-center gap-3">
+                        <p className="text-base text-txtSecondary">{segmento.nome}</p>
+                        <div className="h-2.5 rounded-[8px] bg-strDefault/45">
+                          <div className={cn('h-2.5 rounded-[8px]', segmento.cor)} style={{ width: `${segmento.valor}%` }}></div>
+                        </div>
+                        <p className="text-right text-base tabular-nums text-txtSecondary">{(segmento.valor * 1.1).toFixed(1)}M</p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-6 text-base text-txtMuted">NPS corporativo: 72 • Churn YTD: 1,8% • Backlog contratado: R$ 489M</p>
+                </Card>
+              </section>
+            </main>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
