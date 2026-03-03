@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conatus | Dashboard Executivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { outfit: ['Outfit', 'sans-serif'] },
+            colors: {
+              bgMain: '#03131e',
+              bgCard: '#071724',
+              bgModal: '#214058',
+              bgButton: '#275fc1',
+              bgDestructive: '#e45757',
+              strDefault: '#214059',
+              strHover: '#275fc1',
+              strDisabled: '#8f9da7',
+              strDestructive: '#d32f2f',
+              txtMain: '#f2f2f2',
+              txtSecondary: '#c1cdd9',
+              txtMuted: '#8f9da7',
+              txtModal: '#03131e',
+              chart1: '#275fc1',
+              chart2: '#19c2b8',
+              chart3: '#2aa9e0',
+              chart4: '#22A87e',
+              chart5: '#7ad74a',
+              chart6: '#f58b3a',
+              chartOther: '#B6c2D1',
+              stSuccess: '#34d399',
+              stWarning: '#fbbf24',
+              stDanger: '#fb7185'
+            }
+          }
+        }
+      };
+    </script>
+  </head>
+  <body class="bg-bgMain text-txtMain font-outfit antialiased">
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const NAV_ITEMS = [
+        { key: 'Resumo executivo', icon: 'home' },
+        { key: 'Financeiro', icon: 'finance' },
+        { key: 'Clientes', icon: 'users' },
+        { key: 'Operações', icon: 'ops' },
+        { key: 'Riscos e alertas', icon: 'alert' }
+      ];
+
+      const TOP_CUSTOMERS = [
+        { nome: 'Vale', receita: 'R$ 18,4M', risco: 'Baixo', ltv: 'R$ 42,1M' },
+        { nome: 'Braskem', receita: 'R$ 14,1M', risco: 'Médio', ltv: 'R$ 35,0M' },
+        { nome: 'Petrobras', receita: 'R$ 12,9M', risco: 'Baixo', ltv: 'R$ 31,8M' },
+        { nome: 'ArcelorMittal', receita: 'R$ 10,8M', risco: 'Baixo', ltv: 'R$ 26,3M' },
+        { nome: 'Ambev', receita: 'R$ 9,9M', risco: 'Médio', ltv: 'R$ 23,9M' },
+        { nome: 'Klabin', receita: 'R$ 8,6M', risco: 'Baixo', ltv: 'R$ 21,7M' },
+        { nome: 'Suzano', receita: 'R$ 7,8M', risco: 'Baixo', ltv: 'R$ 20,1M' },
+        { nome: 'Gerdau', receita: 'R$ 7,1M', risco: 'Médio', ltv: 'R$ 18,5M' },
+        { nome: 'Raízen', receita: 'R$ 6,5M', risco: 'Baixo', ltv: 'R$ 16,8M' },
+        { nome: 'Natura', receita: 'R$ 5,7M', risco: 'Alto', ltv: 'R$ 15,4M' }
+      ];
+
+      const SEGMENTS = [
+        { nome: 'Mineração', valor: 100, cor: 'bg-chart1' },
+        { nome: 'Químico', valor: 82, cor: 'bg-chart2' },
+        { nome: 'Energia', valor: 74, cor: 'bg-chart3' },
+        { nome: 'Saneamento', valor: 63, cor: 'bg-chart4' },
+        { nome: 'Alimentos', valor: 46, cor: 'bg-chart5' }
+      ];
+
+      const EBITDA_YTD = [
+        { mes: 'Jan', valor: 51.2 },
+        { mes: 'Fev', valor: 109.0 },
+        { mes: 'Mar', valor: 174.6 },
+        { mes: 'Abr', valor: 236.2 },
+        { mes: 'Mai', valor: 301.4 },
+        { mes: 'Jun', valor: 368.9 },
+        { mes: 'Jul', valor: 429.5 }
+      ];
+
+      const FUNNEL = [
+        { etapa: 'Leads qualificados', volume: 1320, taxa: '100%', cor: 'bg-chart3' },
+        { etapa: 'Propostas enviadas', volume: 742, taxa: '56%', cor: 'bg-chart2' },
+        { etapa: 'Negociação ativa', volume: 401, taxa: '30%', cor: 'bg-chart1' },
+        { etapa: 'Contrato assinado', volume: 188, taxa: '14%', cor: 'bg-chart4' }
+      ];
+
+      function cn(...classes) {
+        return classes.filter(Boolean).join(' ');
+      }
+
+      function Icon({ name, className = 'h-5 w-5' }) {
+        const common = { className: cn('stroke-current fill-none', className), strokeWidth: '1.8', viewBox: '0 0 24 24' };
+        if (name === 'home') return <svg {...common}><path d="M3 10.5 12 3l9 7.5" /><path d="M5.5 9.5V20h13V9.5" /></svg>;
+        if (name === 'finance') return <svg {...common}><path d="M4 19h16" /><path d="M7 16V9" /><path d="M12 16V6" /><path d="M17 16v-4" /></svg>;
+        if (name === 'users') return <svg {...common}><path d="M9 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path d="M16 11a2.5 2.5 0 1 0 0-5" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0" /><path d="M14.5 20a4 4 0 0 1 6 0" /></svg>;
+        if (name === 'ops') return <svg {...common}><path d="m4 14 4 4L20 6" /></svg>;
+        if (name === 'alert') return <svg {...common}><path d="m12 4 8 14H4L12 4Z" /><path d="M12 10v4" /><path d="M12 17h.01" /></svg>;
+        return <svg {...common}><circle cx="12" cy="12" r="8" /></svg>;
+      }
+
+      function Button({ variant = 'outline', size = 'default', className = '', children, ...props }) {
+        const variants = {
+          primary: 'bg-bgButton text-txtMain border border-bgButton hover:border-strHover',
+          outline: 'bg-bgCard text-txtMain border border-[0.5px] border-strDefault hover:border hover:border-strHover',
+          ghost: 'bg-bgCard text-txtSecondary border border-[0.5px] border-strDisabled hover:border hover:border-strDefault hover:text-txtMain',
+          destructive: 'bg-bgDestructive text-txtModal border border-bgDestructive hover:border hover:border-strDestructive'
+        };
+        const sizes = {
+          default: 'h-10 px-4 text-base',
+          sm: 'h-9 px-3 text-base'
+        };
+
+        return (
+          <button
+            className={cn(
+              'rounded-[8px] font-semibold transition-colors focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40',
+              variants[variant],
+              sizes[size],
+              className
+            )}
+            {...props}
+          >
+            {children}
+          </button>
+        );
+      }
+
+      function Badge({ tone = 'success', children }) {
+        const tones = {
+          success: 'bg-stSuccess text-txtModal',
+          warning: 'bg-stWarning text-txtModal',
+          danger: 'bg-stDanger text-txtModal'
+        };
+        return <span className={cn('inline-flex items-center rounded-[8px] px-2 py-1 text-base font-semibold', tones[tone])}>{children}</span>;
+      }
+
+      function Tabs({ options, active, onChange }) {
+        return (
+          <div className="inline-flex rounded-[8px] border border-[0.5px] border-strDefault bg-bgCard p-1">
+            {options.map((opt) => (
+              <button
+                key={opt}
+                onClick={() => onChange(opt)}
+                className={cn(
+                  'h-8 rounded-[8px] px-3 text-base transition-colors',
+                  active === opt ? 'border border-[0.5px] border-strHover bg-bgMain text-txtMain' : 'text-txtSecondary hover:text-txtMain'
+                )}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        );
+      }
+
+      function Card({ title, className = '', children, rightSlot }) {
+        return (
+          <section className={cn('rounded-[12px] border border-[0.5px] border-strDefault bg-bgCard p-6 transition-colors hover:border hover:border-strHover', className)}>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-[20px] font-semibold">{title}</h2>
+              {rightSlot}
+            </div>
+            {children}
+          </section>
+        );
+      }
+
+      function Kpi({ label, value, foot, footTone = 'success' }) {
+        return (
+          <div className="space-y-2 rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain/40 p-3">
+            <p className="text-base text-txtSecondary">{label}</p>
+            <p className="text-[30px] font-bold tabular-nums leading-none">{value}</p>
+            {foot ? <Badge tone={footTone}>{foot}</Badge> : null}
+          </div>
+        );
+      }
+
+      function Tooltip({ children, content }) {
+        return (
+          <div className="group relative inline-flex">
+            {children}
+            <div className="pointer-events-none absolute -top-14 left-1/2 z-20 hidden -translate-x-1/2 whitespace-nowrap rounded-[8px] border border-[0.5px] border-strDefault bg-bgCard px-3 py-2 text-base text-txtMain group-hover:block group-focus-within:block">
+              {content}
+            </div>
+          </div>
+        );
+      }
+
+      function EbitdaLineChart({ data }) {
+        const width = 760;
+        const height = 230;
+        const padding = { top: 24, right: 20, bottom: 34, left: 48 };
+        const innerW = width - padding.left - padding.right;
+        const innerH = height - padding.top - padding.bottom;
+        const maxVal = Math.max(...data.map((d) => d.valor)) * 1.1;
+        const x = (index) => padding.left + (index / (data.length - 1)) * innerW;
+        const y = (value) => padding.top + innerH - (value / maxVal) * innerH;
+        const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d.valor)}`).join(' ');
+        const areaPath = `${linePath} L ${x(data.length - 1)} ${height - padding.bottom} L ${x(0)} ${height - padding.bottom} Z`;
+
+        return (
+          <div className="relative">
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
+              {[0.25, 0.5, 0.75, 1].map((v) => (
+                <line key={v} x1={padding.left} x2={width - padding.right} y1={y(maxVal * v)} y2={y(maxVal * v)} stroke="#214059" strokeWidth="0.5" />
+              ))}
+              <path d={areaPath} fill="#275fc1" fillOpacity="0.15" />
+              <path d={linePath} fill="none" stroke="#275fc1" strokeWidth="2" />
+              {data.map((d, i) => (
+                <g key={d.mes}>
+                  <circle cx={x(i)} cy={y(d.valor)} r="4" fill="#19c2b8" />
+                  <text x={x(i)} y={height - 12} fill="#c1cdd9" textAnchor="middle" fontSize="12">{d.mes}</text>
+                </g>
+              ))}
+            </svg>
+            <div className="absolute inset-0">
+              {data.map((d, i) => (
+                <Tooltip key={d.mes} content={`${d.mes} • R$ ${d.valor.toFixed(1)}M`}>
+                  <button
+                    className="absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border border-transparent hover:border-strHover focus-visible:border-strHover focus-visible:outline-none"
+                    style={{ left: `${((x(i) / width) * 100).toFixed(3)}%`, top: `${((y(d.valor) / height) * 100).toFixed(3)}%` }}
+                    aria-label={`EBITDA acumulado ${d.mes}`}
+                  />
+                </Tooltip>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      function FunnelCard() {
+        const max = FUNNEL[0].volume;
+        return (
+          <Card title="Funil comercial de clientes" rightSlot={<Badge tone="success">Conversão 14,2%</Badge>}>
+            <div className="space-y-3">
+              {FUNNEL.map((step) => (
+                <Tooltip key={step.etapa} content={`${step.etapa} • ${step.volume.toLocaleString('pt-BR')} contas`}>
+                  <button className="group w-full text-left">
+                    <div className="mb-1 flex items-center justify-between text-base text-txtSecondary">
+                      <span>{step.etapa}</span>
+                      <span className="tabular-nums">{step.taxa}</span>
+                    </div>
+                    <div className="h-10 rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain/40 p-1 transition-colors group-hover:border group-hover:border-strHover">
+                      <div className={cn('flex h-full items-center rounded-[8px] px-3 text-base font-semibold text-txtMain tabular-nums', step.cor)} style={{ width: `${(step.volume / max) * 100}%` }}>
+                        {step.volume.toLocaleString('pt-BR')}
+                      </div>
+                    </div>
+                  </button>
+                </Tooltip>
+              ))}
+            </div>
+          </Card>
+        );
+      }
+
+      function Sidebar({ selected, onSelect, collapsed, onToggle }) {
+        return (
+          <aside className={cn('border-r border-[0.5px] border-strDefault bg-bgCard p-3 transition-all lg:p-4', collapsed ? 'w-[88px]' : 'w-[280px]')}>
+            <div className="mb-4 flex items-center justify-between rounded-[12px] border border-[0.5px] border-strDefault bg-bgMain p-3">
+              {!collapsed && (
+                <div>
+                  <p className="text-[20px] font-semibold">Conatus Hub</p>
+                  <p className="text-base text-txtSecondary">Painel estratégico</p>
+                </div>
+              )}
+              <Button variant="ghost" size="sm" className="w-10 px-0" onClick={onToggle}>
+                <svg className={cn('h-5 w-5 transition-transform', collapsed ? 'rotate-180' : '')} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m15 6-6 6 6 6" /></svg>
+              </Button>
+            </div>
+            <nav className="grid gap-2">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => onSelect(item.key)}
+                  title={collapsed ? item.key : undefined}
+                  className={cn(
+                    'min-h-10 rounded-[8px] border border-[0.5px] px-3 py-2 text-base transition-colors focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40 flex items-center gap-2',
+                    selected === item.key ? 'border border-strHover bg-bgMain text-txtMain' : 'border-strDefault text-txtSecondary hover:border hover:border-strHover hover:text-txtMain',
+                    collapsed && 'justify-center px-2'
+                  )}
+                >
+                  <Icon name={item.icon} className="h-5 w-5" />
+                  {!collapsed && <span>{item.key}</span>}
+                </button>
+              ))}
+            </nav>
+          </aside>
+        );
+      }
+
+      function ExecutiveDashboard({ periodo }) {
+        return (
+          <section className="grid grid-cols-12 gap-6">
+            <Card title="Receitas e run-rate" className="col-span-12 xl:col-span-4">
+              <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Kpi label={`Receita ${periodo}`} value={periodo === 'MTD' ? 'R$ 82,4M' : 'R$ 711,8M'} foot="+4,8% vs meta até hoje" />
+                <Kpi label="Run-rate anual" value="R$ 720,0M" foot="-1,2% vs run-rate anual" footTone="warning" />
+              </div>
+              <p className="text-base text-txtMuted">Receita média mensal: R$ 237,3M • Ticket médio: R$ 1,48M</p>
+            </Card>
+
+            <Card title="Posição de caixa" className="col-span-12 xl:col-span-4">
+              <p className="text-base text-txtSecondary">Saldo total em BRL</p>
+              <p className="mt-2 text-[30px] font-bold tabular-nums leading-none">R$ 294,7M</p>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <Kpi label="Disponível" value="R$ 211,9M" />
+                <Kpi label="Aplicações D+1" value="R$ 82,8M" />
+              </div>
+            </Card>
+
+            <Card title="Geração de caixa operacional" className="col-span-12 xl:col-span-4">
+              <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Kpi label="MTD" value="R$ 31,2M" foot="+8,1% vs orçamento" />
+                <Kpi label="YTD" value="R$ 201,4M" foot="Conversão caixa: 73%" />
+              </div>
+              <p className="text-base text-txtMuted">Capex realizado YTD: R$ 68,9M • Capex/Receita: 9,7%</p>
+            </Card>
+
+            <Card title="Top 10 clientes por receita (YTD)" className="col-span-12 xl:col-span-5">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-base">
+                  <thead>
+                    <tr className="text-left text-txtSecondary">
+                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Cliente</th>
+                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Risco</th>
+                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 text-right font-semibold">Receita</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {TOP_CUSTOMERS.map((c) => (
+                      <tr key={c.nome} className="hover:bg-bgMain/25">
+                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3">{c.nome}</td>
+                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-txtSecondary">{c.risco}</td>
+                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-right tabular-nums">{c.receita}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            <Card title="EBITDA acumulado YTD — série temporal" className="col-span-12 xl:col-span-7" rightSlot={<Badge tone="success">+12,4% vs orçamento</Badge>}>
+              <p className="mb-3 text-base text-txtSecondary">Passe o cursor nos pontos para ver os rótulos de dados (tooltip).</p>
+              <div className="rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain p-3">
+                <EbitdaLineChart data={EBITDA_YTD} />
+              </div>
+            </Card>
+
+            <Card title="Análise RFM (Recência × Frequência × Monetário)" className="col-span-12 xl:col-span-6">
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  ['Campeões', '62', 'bg-chart5/35'],
+                  ['Leais', '48', 'bg-chart4/35'],
+                  ['Promissores', '27', 'bg-chart6/35'],
+                  ['Atenção', '19', 'bg-bgDestructive/35']
+                ].map(([label, qtd, bg]) => (
+                  <Tooltip key={label} content={`${label}: ${qtd} contas`}>
+                    <button className={cn('rounded-[8px] border border-[0.5px] border-strDefault px-3 py-3 text-left hover:border hover:border-strHover', bg)}>
+                      <p className="text-base font-semibold">{label}</p>
+                      <p className="text-base text-txtSecondary">{qtd} contas</p>
+                    </button>
+                  </Tooltip>
+                ))}
+              </div>
+            </Card>
+
+            <Card title="Mix de receita por segmento" className="col-span-12 xl:col-span-6">
+              <div className="space-y-3">
+                {SEGMENTS.map((segmento) => (
+                  <Tooltip key={segmento.nome} content={`${segmento.nome}: ${(segmento.valor * 1.1).toFixed(1)}M`}>
+                    <button className="w-full text-left">
+                      <div className="mb-1 flex items-center justify-between">
+                        <p className="text-base text-txtSecondary">{segmento.nome}</p>
+                        <p className="text-base tabular-nums text-txtSecondary">{(segmento.valor * 1.1).toFixed(1)}M</p>
+                      </div>
+                      <div className="h-2.5 rounded-[8px] bg-strDefault/45">
+                        <div className={cn('h-2.5 rounded-[8px]', segmento.cor)} style={{ width: `${segmento.valor}%` }}></div>
+                      </div>
+                    </button>
+                  </Tooltip>
+                ))}
+              </div>
+            </Card>
+          </section>
+        );
+      }
+
+      function ClientesDashboard() {
+        return (
+          <section className="grid grid-cols-12 gap-6">
+            <Card title="Clientes ativos" className="col-span-12 md:col-span-4" rightSlot={<Badge tone="success">+6,4% YoY</Badge>}>
+              <p className="text-[30px] font-bold tabular-nums">1.286</p>
+              <p className="mt-2 text-base text-txtSecondary">Base ativa com faturamento nos últimos 90 dias.</p>
+            </Card>
+            <Card title="Retenção líquida (NRR)" className="col-span-12 md:col-span-4" rightSlot={<Badge tone="success">112%</Badge>}>
+              <p className="text-[30px] font-bold tabular-nums">112,4%</p>
+              <p className="mt-2 text-base text-txtSecondary">Expansão superior ao churn na carteira enterprise.</p>
+            </Card>
+            <Card title="Churn de clientes" className="col-span-12 md:col-span-4" rightSlot={<Badge tone="warning">1,8% YTD</Badge>}>
+              <p className="text-[30px] font-bold tabular-nums">0,5%</p>
+              <p className="mt-2 text-base text-txtSecondary">Churn mensal no último fechamento.</p>
+            </Card>
+
+            <div className="col-span-12 xl:col-span-7">
+              <FunnelCard />
+            </div>
+
+            <Card title="Cohorts de ativação (30 dias)" className="col-span-12 xl:col-span-5">
+              <div className="space-y-3">
+                {[
+                  ['Jan/26', 84, 'bg-chart2'],
+                  ['Fev/26', 79, 'bg-chart3'],
+                  ['Mar/26', 82, 'bg-chart1'],
+                  ['Abr/26', 76, 'bg-chart6']
+                ].map(([cohort, rate, color]) => (
+                  <Tooltip key={cohort} content={`${cohort}: ${rate}% ativados em 30 dias`}>
+                    <button className="w-full">
+                      <div className="mb-1 flex justify-between text-base text-txtSecondary"><span>{cohort}</span><span>{rate}%</span></div>
+                      <div className="h-2.5 rounded-[8px] bg-strDefault/45"><div className={cn('h-2.5 rounded-[8px]', color)} style={{ width: `${rate}%` }}></div></div>
+                    </button>
+                  </Tooltip>
+                ))}
+              </div>
+            </Card>
+
+            <Card title="Top contas por LTV" className="col-span-12">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-base">
+                  <thead>
+                    <tr className="text-left text-txtSecondary">
+                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Conta</th>
+                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">LTV</th>
+                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Receita YTD</th>
+                      <th className="border-b border-[0.5px] border-strDefault px-2 py-3 font-semibold">Risco</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {TOP_CUSTOMERS.slice(0, 6).map((c) => (
+                      <tr key={c.nome} className="hover:bg-bgMain/25">
+                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3">{c.nome}</td>
+                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 tabular-nums">{c.ltv}</td>
+                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 tabular-nums">{c.receita}</td>
+                        <td className="border-b border-[0.5px] border-strDefault px-2 py-3 text-txtSecondary">{c.risco}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </section>
+        );
+      }
+
+      function App() {
+        const [activeNav, setActiveNav] = React.useState('Resumo executivo');
+        const [periodo, setPeriodo] = React.useState('MTD');
+        const [collapsed, setCollapsed] = React.useState(false);
+
+        return (
+          <div className="min-h-screen lg:flex">
+            <Sidebar selected={activeNav} onSelect={setActiveNav} collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
+
+            <main className="flex-1 p-4 lg:p-6">
+              <header className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                  <h1 className="text-[24px] font-semibold">Dashboard Executivo — Conatus Environmental Technologies</h1>
+                  <p className="mt-2 text-base text-txtSecondary">Fechamento parcial de março/2026 • seção ativa: {activeNav}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Tabs options={['MTD', 'YTD']} active={periodo} onChange={setPeriodo} />
+                  <Button variant="primary">Atualizar dados</Button>
+                  <Button variant="ghost">Exportar PDF</Button>
+                  <Button variant="destructive">Sinalizar risco</Button>
+                </div>
+              </header>
+
+              {activeNav === 'Clientes' ? <ClientesDashboard /> : <ExecutiveDashboard periodo={periodo} />}
+            </main>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
