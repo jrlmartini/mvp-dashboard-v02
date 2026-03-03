@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conatus | Dashboard Executivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg-main: #03131e;
+        --bg-card: #071724;
+        --bg-modal: #214058;
+        --bg-button: #275fc1;
+        --bg-destructive: #e45757;
+        --str-default: #214059;
+        --str-hover: #275fc1;
+        --str-disabled: #8f9da7;
+        --str-destructive: #d32f2f;
+        --txt-main: #f2f2f2;
+        --txt-secondary: #c1cdd9;
+        --txt-muted: #8f9da7;
+        --txt-modal: #03131e;
+        --chart-1: #275fc1;
+        --chart-2: #19c2b8;
+        --chart-3: #2aa9e0;
+        --chart-4: #22a87e;
+        --chart-5: #7ad74a;
+        --chart-6: #f58b3a;
+        --chart-other: #b6c2d1;
+        --st-success: #34d399;
+        --st-warning: #fbbf24;
+        --st-danger: #fb7185;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg-main);
+        color: var(--txt-main);
+        font-family: 'Outfit', sans-serif;
+      }
+
+      .layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+      }
+
+      .sidebar {
+        border-right: 0.5px solid var(--str-default);
+        background: var(--bg-card);
+        padding: 24px 16px;
+      }
+
+      .brand {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
+
+      .nav-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .nav-button {
+        width: 100%;
+        border: 0.5px solid var(--str-default);
+        background: var(--bg-card);
+        color: var(--txt-secondary);
+        border-radius: 8px;
+        padding: 12px;
+        text-align: left;
+        font-size: 16px;
+        cursor: pointer;
+        min-height: 40px;
+        transition: border-color .15s ease;
+      }
+
+      .nav-button:hover,
+      .nav-button:focus-visible {
+        border: 1px solid var(--str-hover);
+        color: var(--txt-main);
+        outline: none;
+        box-shadow: 0 0 0 2px rgb(39 95 193 / 0.35);
+      }
+
+      .nav-button.active {
+        border: 1px solid var(--str-hover);
+        color: var(--txt-main);
+      }
+
+      .content {
+        padding: 24px;
+        max-width: 1700px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        gap: 16px;
+      }
+
+      h1 { margin: 0; font-size: 24px; font-weight: 600; }
+      .subtitle { color: var(--txt-secondary); font-size: 16px; margin-top: 8px; }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .btn {
+        min-height: 40px;
+        border-radius: 8px;
+        padding: 8px 14px;
+        border: 0.5px solid var(--str-default);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: border-color .15s ease;
+      }
+
+      .btn:focus-visible {
+        outline: none;
+        border: 1px solid var(--str-hover);
+        box-shadow: 0 0 0 2px rgb(39 95 193 / 0.35);
+      }
+
+      .btn-primary {
+        background: var(--bg-button);
+        color: var(--txt-main);
+        border-color: var(--bg-button);
+      }
+
+      .btn-primary:hover { border: 1px solid var(--str-hover); }
+
+      .btn-outline {
+        background: var(--bg-card);
+        color: var(--txt-main);
+      }
+
+      .btn-outline:hover { border: 1px solid var(--str-hover); }
+
+      .btn-ghost {
+        background: var(--bg-card);
+        color: var(--txt-secondary);
+        border-color: var(--str-disabled);
+      }
+
+      .btn-ghost:hover {
+        border: 1px solid var(--str-default);
+        color: var(--txt-main);
+      }
+
+      .btn-destructive {
+        background: var(--bg-destructive);
+        color: var(--txt-modal);
+        border-color: var(--bg-destructive);
+      }
+
+      .btn-destructive:hover { border: 1px solid var(--str-destructive); }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 0.5px solid var(--str-default);
+        border-radius: 12px;
+        padding: 24px;
+        transition: border-color .15s ease;
+      }
+
+      .card-hover:hover,
+      .card-hover:focus-within {
+        border: 1px solid var(--str-hover);
+      }
+
+      .card h2 {
+        margin: 0 0 16px;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .kpi { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+      .label { color: var(--txt-secondary); font-size: 16px; }
+      .muted { color: var(--txt-muted); font-size: 16px; }
+
+      .span-4 { grid-column: span 4; }
+      .span-5 { grid-column: span 5; }
+      .span-6 { grid-column: span 6; }
+      .span-7 { grid-column: span 7; }
+
+      .kpi-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .delta {
+        display: inline-block;
+        border-radius: 8px;
+        padding: 6px 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .success { background: var(--st-success); color: var(--txt-modal); }
+      .warning { background: var(--st-warning); color: var(--txt-modal); }
+
+      .table { width: 100%; border-collapse: collapse; }
+      .table th, .table td { text-align: left; padding: 12px 8px; border-bottom: 0.5px solid var(--str-default); font-size: 16px; }
+      .table th { color: var(--txt-secondary); font-weight: 600; }
+      .table td:last-child, .table th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+      .bar-list { display: grid; gap: 12px; margin-top: 8px; }
+      .bar-row { display: grid; grid-template-columns: 130px 1fr 120px; gap: 12px; align-items: center; }
+      .bar-track { width: 100%; height: 10px; border-radius: 8px; background: rgb(33 64 89 / 0.45); }
+      .bar-fill { height: 100%; border-radius: 8px; background: var(--chart-2); }
+
+      .heatmap { width: 100%; border-collapse: separate; border-spacing: 8px; }
+      .heatmap td, .heatmap th { border-radius: 8px; padding: 10px; text-align: center; font-size: 16px; }
+      .heatmap th { color: var(--txt-secondary); font-weight: 600; }
+      .cell-a { background: rgb(122 215 74 / 0.35); }
+      .cell-b { background: rgb(34 168 126 / 0.35); }
+      .cell-c { background: rgb(245 139 58 / 0.35); }
+      .cell-d { background: rgb(228 87 87 / 0.35); }
+
+      .footer-note { margin-top: 24px; color: var(--txt-muted); font-size: 16px; }
+
+      @media (max-width: 1320px) {
+        .layout { grid-template-columns: 1fr; }
+        .sidebar { border-right: none; border-bottom: 0.5px solid var(--str-default); }
+        .span-4, .span-5, .span-6, .span-7 { grid-column: span 12; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const cards = {
+        clientes: [
+          { nome: 'Vale', receita: 'R$ 18,4M' },
+          { nome: 'Braskem', receita: 'R$ 14,1M' },
+          { nome: 'Petrobras', receita: 'R$ 12,9M' },
+          { nome: 'ArcelorMittal', receita: 'R$ 10,8M' },
+          { nome: 'Ambev', receita: 'R$ 9,9M' },
+          { nome: 'Klabin', receita: 'R$ 8,6M' },
+          { nome: 'Suzano', receita: 'R$ 7,8M' },
+          { nome: 'Gerdau', receita: 'R$ 7,1M' },
+          { nome: 'Raízen', receita: 'R$ 6,5M' },
+          { nome: 'Natura', receita: 'R$ 5,7M' },
+        ],
+        segmentos: [
+          { nome: 'Mineração', valor: 100 },
+          { nome: 'Químico', valor: 82 },
+          { nome: 'Energia', valor: 74 },
+          { nome: 'Saneamento', valor: 63 },
+          { nome: 'Alimentos', valor: 46 },
+        ],
+      };
+
+      const navItems = [
+        'Resumo executivo',
+        'Financeiro',
+        'Clientes',
+        'Operações',
+        'Riscos e alertas'
+      ];
+
+      const Button = ({ variant = 'outline', children, ...props }) => (
+        <button className={`btn btn-${variant}`} {...props}>{children}</button>
+      );
+
+      const Card = ({ title, className = '', children }) => (
+        <section className={`card card-hover ${className}`}>
+          <h2>{title}</h2>
+          {children}
+        </section>
+      );
+
+      function App() {
+        const [activeNav, setActiveNav] = React.useState('Resumo executivo');
+        const [periodo, setPeriodo] = React.useState('MTD');
+
+        return (
+          <div className="layout">
+            <aside className="sidebar">
+              <div className="brand">Conatus Executive Hub</div>
+              <nav className="nav-list">
+                {navItems.map((item) => (
+                  <button
+                    key={item}
+                    className={`nav-button ${activeNav === item ? 'active' : ''}`}
+                    onClick={() => setActiveNav(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </nav>
+            </aside>
+
+            <main className="content">
+              <header className="header">
+                <div>
+                  <h1>Dashboard Executivo — Conatus Environmental Technologies</h1>
+                  <div className="subtitle">Fechamento parcial de março/2026 • Visão consolidada Brasil • seção: {activeNav}</div>
+                </div>
+
+                <div className="toolbar">
+                  <Button variant="outline" onClick={() => setPeriodo('MTD')}>MTD</Button>
+                  <Button variant="outline" onClick={() => setPeriodo('YTD')}>YTD</Button>
+                  <Button variant="primary">Atualizar dados</Button>
+                  <Button variant="ghost">Exportar PDF</Button>
+                  <Button variant="destructive">Sinalizar risco</Button>
+                </div>
+              </header>
+
+              <section className="grid">
+                <Card title="Receitas e run-rate" className="span-4">
+                  <div className="kpi-row">
+                    <div>
+                      <div className="label">Receita {periodo}</div>
+                      <div className="kpi">{periodo === 'MTD' ? 'R$ 82,4M' : 'R$ 711,8M'}</div>
+                      <span className="delta success">+4,8% vs meta até hoje</span>
+                    </div>
+                    <div>
+                      <div className="label">Run-rate anual</div>
+                      <div className="kpi">R$ 720,0M</div>
+                      <span className="delta warning">-1,2% vs run-rate anual</span>
+                    </div>
+                  </div>
+                  <div className="muted">Receita média mensal: R$ 237,3M • Ticket médio: R$ 1,48M</div>
+                </Card>
+
+                <Card title="Posição de caixa" className="span-4">
+                  <div className="label">Saldo total em BRL</div>
+                  <div className="kpi">R$ 294,7M</div>
+                  <div className="kpi-row" style={{ marginTop: 12 }}>
+                    <div><div className="label">Disponível</div><div className="kpi" style={{ fontSize: 24 }}>R$ 211,9M</div></div>
+                    <div><div className="label">Aplicações D+1</div><div className="kpi" style={{ fontSize: 24 }}>R$ 82,8M</div></div>
+                  </div>
+                  <span className="delta success">Cobertura de 3,2 meses de OPEX</span>
+                </Card>
+
+                <Card title="Geração de caixa operacional" className="span-4">
+                  <div className="kpi-row">
+                    <div><div className="label">MTD</div><div className="kpi">R$ 31,2M</div><span className="delta success">+8,1% vs orçamento</span></div>
+                    <div><div className="label">YTD</div><div className="kpi">R$ 201,4M</div><span className="delta success">Conversão caixa: 73%</span></div>
+                  </div>
+                  <div className="muted">Capex realizado YTD: R$ 68,9M • Capex/Receita: 9,7%</div>
+                </Card>
+
+                <Card title="Top 10 clientes por receita (YTD)" className="span-5">
+                  <table className="table">
+                    <thead><tr><th>Cliente</th><th>Receita</th></tr></thead>
+                    <tbody>
+                      {cards.clientes.map((cliente) => (<tr key={cliente.nome}><td>{cliente.nome}</td><td>{cliente.receita}</td></tr>))}
+                    </tbody>
+                  </table>
+                </Card>
+
+                <Card title="EBITDA acumulado YTD" className="span-7">
+                  <div className="kpi">R$ 174,6M</div>
+                  <div className="label" style={{ marginBottom: 16 }}>Margem EBITDA acumulada: 24,5%</div>
+                  <table className="table">
+                    <thead><tr><th>Mês</th><th>EBITDA</th><th>Margem</th><th style={{ textAlign: 'right' }}>Variação</th></tr></thead>
+                    <tbody>
+                      <tr><td>Jan</td><td>R$ 51,2M</td><td>24,1%</td><td><span className="delta success">+1,2 p.p.</span></td></tr>
+                      <tr><td>Fev</td><td>R$ 57,8M</td><td>25,0%</td><td><span className="delta success">+0,9 p.p.</span></td></tr>
+                      <tr><td>Mar</td><td>R$ 65,6M</td><td>24,6%</td><td><span className="delta warning">-0,4 p.p.</span></td></tr>
+                    </tbody>
+                  </table>
+                </Card>
+
+                <Card title="Análise RFM (Recência x Frequência x Monetário)" className="span-6">
+                  <table className="heatmap">
+                    <thead><tr><th></th><th>Frequência alta</th><th>Frequência média</th><th>Frequência baixa</th></tr></thead>
+                    <tbody>
+                      <tr><th>Recência alta</th><td className="cell-a">Campeões (62)</td><td className="cell-b">Leais (48)</td><td className="cell-c">Promissores (27)</td></tr>
+                      <tr><th>Recência média</th><td className="cell-b">Potenciais (38)</td><td className="cell-c">Em risco leve (33)</td><td className="cell-d">Atenção (19)</td></tr>
+                      <tr><th>Recência baixa</th><td className="cell-c">Dormindo (22)</td><td className="cell-d">Quase perdidos (15)</td><td className="cell-d">Perdidos (11)</td></tr>
+                    </tbody>
+                  </table>
+                </Card>
+
+                <Card title="Mix de receita por segmento" className="span-6">
+                  <div className="bar-list">
+                    {cards.segmentos.map((segmento, idx) => (
+                      <div className="bar-row" key={segmento.nome}>
+                        <div className="label">{segmento.nome}</div>
+                        <div className="bar-track"><div className="bar-fill" style={{ width: `${segmento.valor}%`, background: ['var(--chart-1)','var(--chart-2)','var(--chart-3)','var(--chart-4)','var(--chart-5)'][idx] }} /></div>
+                        <div style={{ textAlign: 'right' }} className="label">{(segmento.valor * 1.1).toFixed(1)}M</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="footer-note">NPS corporativo: 72 • Churn YTD: 1,8% • Backlog contratado: R$ 489M</div>
+                </Card>
+              </section>
+            </main>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
