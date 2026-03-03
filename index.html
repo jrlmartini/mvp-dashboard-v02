@@ -51,7 +51,13 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-      const NAV_ITEMS = ['Resumo executivo', 'Financeiro', 'Clientes', 'Operações', 'Riscos e alertas'];
+      const NAV_ITEMS = [
+        { key: 'Resumo executivo', icon: 'home' },
+        { key: 'Financeiro', icon: 'finance' },
+        { key: 'Clientes', icon: 'users' },
+        { key: 'Operações', icon: 'ops' },
+        { key: 'Riscos e alertas', icon: 'alert' }
+      ];
 
       const CUSTOMERS = [
         { nome: 'Vale', receita: 'R$ 18,4M', risco: 'Baixo' },
@@ -74,8 +80,27 @@
         { nome: 'Alimentos', valor: 46, cor: 'bg-chart5' }
       ];
 
+      const EBITDA_YTD = [
+        { mes: 'Jan', valor: 51.2 },
+        { mes: 'Fev', valor: 109.0 },
+        { mes: 'Mar', valor: 174.6 },
+        { mes: 'Abr', valor: 236.2 },
+        { mes: 'Mai', valor: 301.4 },
+        { mes: 'Jun', valor: 368.9 }
+      ];
+
       function cn(...classes) {
         return classes.filter(Boolean).join(' ');
+      }
+
+      function Icon({ name, className = 'h-5 w-5' }) {
+        const common = { className: cn('stroke-current fill-none', className), strokeWidth: '1.8', viewBox: '0 0 24 24' };
+        if (name === 'home') return <svg {...common}><path d="M3 10.5 12 3l9 7.5" /><path d="M5.5 9.5V20h13V9.5" /></svg>;
+        if (name === 'finance') return <svg {...common}><path d="M4 19h16" /><path d="M7 16V9" /><path d="M12 16V6" /><path d="M17 16v-4" /></svg>;
+        if (name === 'users') return <svg {...common}><path d="M9 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path d="M16 11a2.5 2.5 0 1 0 0-5" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0" /><path d="M14.5 20a4 4 0 0 1 6 0" /></svg>;
+        if (name === 'ops') return <svg {...common}><path d="m4 14 4 4L20 6" /></svg>;
+        if (name === 'alert') return <svg {...common}><path d="m12 4 8 14H4L12 4Z" /><path d="M12 10v4" /><path d="M12 17h.01" /></svg>;
+        return <svg {...common}><circle cx="12" cy="12" r="8" /></svg>;
       }
 
       function Button({ variant = 'outline', className = '', children, ...props }) {
@@ -118,7 +143,7 @@
               className
             )}
           >
-            <h2 className="mb-4 text-[20px] font-semibold leading-tight">{title}</h2>
+            <h2 className="mb-4 text-[20px] font-semibold">{title}</h2>
             {children}
           </section>
         );
@@ -134,26 +159,80 @@
         );
       }
 
-      function Sidebar({ selected, onSelect }) {
+      function EbitdaLineChart({ data }) {
+        const width = 720;
+        const height = 220;
+        const padding = { top: 24, right: 24, bottom: 30, left: 46 };
+        const innerW = width - padding.left - padding.right;
+        const innerH = height - padding.top - padding.bottom;
+        const minVal = 0;
+        const maxVal = Math.max(...data.map((d) => d.valor)) * 1.1;
+
+        const x = (index) => padding.left + (index / (data.length - 1)) * innerW;
+        const y = (value) => padding.top + innerH - ((value - minVal) / (maxVal - minVal)) * innerH;
+
+        const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d.valor)}`).join(' ');
+        const areaPath = `${linePath} L ${x(data.length - 1)} ${height - padding.bottom} L ${x(0)} ${height - padding.bottom} Z`;
+        const yTicks = [0.25, 0.5, 0.75, 1].map((v) => maxVal * v);
+
         return (
-          <aside className="border-r border-[0.5px] border-strDefault bg-bgCard p-4 lg:p-6">
-            <div className="mb-6 rounded-[12px] border border-[0.5px] border-strDefault bg-bgMain p-4">
-              <p className="text-[20px] font-semibold">Conatus Executive Hub</p>
-              <p className="mt-1 text-base text-txtSecondary">Painel estratégico PT-BR</p>
+          <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
+            {yTicks.map((tick) => (
+              <g key={tick}>
+                <line x1={padding.left} x2={width - padding.right} y1={y(tick)} y2={y(tick)} stroke="#214059" strokeWidth="0.5" />
+                <text x={padding.left - 8} y={y(tick) + 4} fill="#c1cdd9" textAnchor="end" fontSize="12">{`R$ ${tick.toFixed(0)}M`}</text>
+              </g>
+            ))}
+
+            <path d={areaPath} fill="#275fc1" fillOpacity="0.18" />
+            <path d={linePath} fill="none" stroke="#275fc1" strokeWidth="2" />
+
+            {data.map((d, i) => (
+              <g key={d.mes}>
+                <circle cx={x(i)} cy={y(d.valor)} r="4" fill="#19c2b8" />
+                <text x={x(i)} y={height - 10} fill="#c1cdd9" textAnchor="middle" fontSize="12">{d.mes}</text>
+              </g>
+            ))}
+          </svg>
+        );
+      }
+
+      function Sidebar({ selected, onSelect, collapsed, onToggle }) {
+        return (
+          <aside className={cn('border-r border-[0.5px] border-strDefault bg-bgCard p-3 transition-all lg:p-4', collapsed ? 'w-[86px]' : 'w-[280px]')}>
+            <div className="mb-4 flex items-center justify-between rounded-[12px] border border-[0.5px] border-strDefault bg-bgMain p-3">
+              {!collapsed && (
+                <div>
+                  <p className="text-[20px] font-semibold">Conatus Hub</p>
+                  <p className="text-base text-txtSecondary">Painel estratégico</p>
+                </div>
+              )}
+              <button
+                onClick={onToggle}
+                className="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[0.5px] border-strDefault text-txtSecondary hover:border hover:border-strHover hover:text-txtMain"
+              >
+                <svg className={cn('h-5 w-5 transition-transform', collapsed ? 'rotate-180' : '')} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="m15 6-6 6 6 6" />
+                </svg>
+              </button>
             </div>
+
             <nav className="grid gap-2">
               {NAV_ITEMS.map((item) => (
                 <button
-                  key={item}
-                  onClick={() => onSelect(item)}
+                  key={item.key}
+                  onClick={() => onSelect(item.key)}
                   className={cn(
-                    'min-h-10 rounded-[8px] border border-[0.5px] px-3 py-2 text-left text-base transition-colors focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40',
-                    selected === item
+                    'min-h-10 rounded-[8px] border border-[0.5px] px-3 py-2 text-left text-base transition-colors focus-visible:outline-none focus-visible:border focus-visible:border-strHover focus-visible:ring-2 focus-visible:ring-strHover/40 flex items-center gap-2',
+                    selected === item.key
                       ? 'border border-strHover text-txtMain bg-bgMain'
-                      : 'border-strDefault text-txtSecondary bg-bgCard hover:border hover:border-strHover hover:text-txtMain'
+                      : 'border-strDefault text-txtSecondary bg-bgCard hover:border hover:border-strHover hover:text-txtMain',
+                    collapsed && 'justify-center px-2'
                   )}
+                  title={collapsed ? item.key : undefined}
                 >
-                  {item}
+                  <Icon name={item.icon} className="h-5 w-5" />
+                  {!collapsed && <span>{item.key}</span>}
                 </button>
               ))}
             </nav>
@@ -162,15 +241,16 @@
       }
 
       function App() {
-        const [activeNav, setActiveNav] = React.useState(NAV_ITEMS[0]);
+        const [activeNav, setActiveNav] = React.useState(NAV_ITEMS[0].key);
         const [periodo, setPeriodo] = React.useState('MTD');
         const [compact, setCompact] = React.useState(false);
+        const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
 
         return (
-          <div className="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
-            <Sidebar selected={activeNav} onSelect={setActiveNav} />
+          <div className="min-h-screen lg:flex">
+            <Sidebar selected={activeNav} onSelect={setActiveNav} collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)} />
 
-            <main className="p-4 lg:p-6">
+            <main className="flex-1 p-4 lg:p-6">
               <header className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
                   <h1 className="text-[24px] font-semibold">Dashboard Executivo — Conatus Environmental Technologies</h1>
@@ -188,11 +268,7 @@
               <section className={cn('grid grid-cols-12 gap-6', compact && 'gap-4')}>
                 <Card title="Receitas e run-rate" className="col-span-12 xl:col-span-4">
                   <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <Kpi
-                      label={`Receita ${periodo}`}
-                      value={periodo === 'MTD' ? 'R$ 82,4M' : 'R$ 711,8M'}
-                      foot="+4,8% vs meta até hoje"
-                    />
+                    <Kpi label={`Receita ${periodo}`} value={periodo === 'MTD' ? 'R$ 82,4M' : 'R$ 711,8M'} foot="+4,8% vs meta até hoje" />
                     <Kpi label="Run-rate anual" value="R$ 720,0M" foot="-1,2% vs run-rate anual" footTone="warning" />
                   </div>
                   <p className="text-base text-txtMuted">Receita média mensal: R$ 237,3M • Ticket médio: R$ 1,48M</p>
@@ -239,22 +315,16 @@
                   </div>
                 </Card>
 
-                <Card title="EBITDA acumulado YTD" className="col-span-12 xl:col-span-7">
-                  <p className="text-[30px] font-bold tabular-nums leading-none">R$ 174,6M</p>
-                  <p className="mb-4 mt-2 text-base text-txtSecondary">Margem EBITDA acumulada: 24,5%</p>
-                  <div className="grid gap-3 md:grid-cols-3">
-                    {[
-                      ['Jan', 'R$ 51,2M', '24,1%', 'success', '+1,2 p.p.'],
-                      ['Fev', 'R$ 57,8M', '25,0%', 'success', '+0,9 p.p.'],
-                      ['Mar', 'R$ 65,6M', '24,6%', 'warning', '-0,4 p.p.']
-                    ].map(([mes, ebitda, margem, tone, delta]) => (
-                      <div key={mes} className="rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain p-3">
-                        <p className="text-base text-txtSecondary">{mes}</p>
-                        <p className="mt-1 text-2xl font-bold tabular-nums">{ebitda}</p>
-                        <p className="text-base text-txtSecondary">Margem: {margem}</p>
-                        <div className="mt-2"><Badge tone={tone}>{delta}</Badge></div>
-                      </div>
-                    ))}
+                <Card title="EBITDA acumulado YTD — série temporal" className="col-span-12 xl:col-span-7">
+                  <div className="mb-3 flex items-end justify-between">
+                    <div>
+                      <p className="text-[30px] font-bold tabular-nums leading-none">R$ 368,9M</p>
+                      <p className="mt-2 text-base text-txtSecondary">Evolução mensal acumulada do EBITDA no ano</p>
+                    </div>
+                    <Badge tone="success">+12,4% vs orçamento YTD</Badge>
+                  </div>
+                  <div className="rounded-[8px] border border-[0.5px] border-strDefault bg-bgMain p-3">
+                    <EbitdaLineChart data={EBITDA_YTD} />
                   </div>
                 </Card>
 
